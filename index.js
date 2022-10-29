@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
 // port
 mongoose
   .connect(
-    `mongodb+srv://${user}:${password}@cluster0.trjfjgq.mongodb.net/database?retryWrites=true&w=majority`
+    `mongodb+srv://${user}:${password}@cluster0.p0llsye.mongodb.net/?retryWrites=true&w=majority`
   )
   .then(() => {
     console.log('Connected to MongoDB!')

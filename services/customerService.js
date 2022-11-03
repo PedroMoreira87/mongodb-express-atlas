@@ -40,7 +40,7 @@ const CustomerService = {
     try {
       const customer = await Customer.findOne({ _id: id });
       if (!customer) {
-        res.status(422).json({ message: "Customer not found!" });
+        res.status(404).json({ message: "Customer not found!" });
         return;
       }
       res.status(200).json(customer);

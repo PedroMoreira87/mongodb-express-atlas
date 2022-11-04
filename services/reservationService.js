@@ -2,6 +2,7 @@ const moment = require("moment");
 
 const Reservation = require("../schemas/reservationSchema");
 const Room = require("../schemas/roomSchema");
+const Customer = require("../schemas/customerSchema");
 
 const ReservationService = {
   async listAll(_, res) {
@@ -111,6 +112,53 @@ const ReservationService = {
     } catch (error) {
       res.status(500).json({ error: error });
     }
+  },
+
+  async getReservationsByCustomerName(req, res) {
+    const name = req.query.name;
+
+    const { _id: customer_id } = await Customer.findOne({ fullName: name });
+
+    try {
+      const reservations = await Reservation.find({
+        customer_id: customer_id,
+      });
+      if (!reservations) {
+        res.status(422).json({ message: "Reservation not found!" });
+        return;
+      }
+      res.status(200).json(reservations);
+    } catch (error) {
+      res.status(500).json({ error: error });
+    }
+  },
+
+  async sumEarnFromDoubleRooms(req, res) {
+    const query = Reservation.aggregate([
+      {
+        $lookup: {
+          from: "rooms",
+          localField: "room_id",
+          foreignField: "_id",
+          as: "room",
+        },
+      },
+      {
+        $match: {
+          "room.type": "Double",
+        },
+      },
+      {
+        $group: {
+          _id: "$room",
+          total_price: { $sum: "$total_price" },
+        },
+      },
+    ]);
+
+    const result = await query.exec();
+
+    res.status(200).json(result);
   },
 };
 

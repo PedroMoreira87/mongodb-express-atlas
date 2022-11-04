@@ -1,3 +1,5 @@
+const moment = require("moment");
+
 const Room = require("../schemas/roomSchema");
 
 const RoomService = {
@@ -85,38 +87,6 @@ const RoomService = {
     } catch (error) {
       res.status(500).json({ error: error });
     }
-  },
-
-  async getAvailableRooms(req, res) {
-    const freeRooms = Room.aggregate([
-      {
-        $lookup: {
-          from: "reservations",
-          localField: "_id",
-          foreignField: "room_id",
-          as: "reservation",
-        },
-      },
-      {
-        $match: {
-          $and: [
-            {
-              "reservations.checkin_date": {
-                $lte: req.params.checkinDate,
-              },
-            },
-            {
-              "reservations.checkout_date": {
-                $lte: req.params.checkoutDate,
-              },
-            },
-          ],
-        },
-      },
-      { $project: { reservation: 0 } },
-    ]);
-
-    res.status(200).json(freeRooms.exec());
   },
 };
 
